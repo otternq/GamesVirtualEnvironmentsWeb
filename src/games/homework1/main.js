@@ -146,5 +146,7 @@ var PlayScreen = me.ScreenObject.extend(
 //bootstrap :)
 window.onReady(function() 
 {
+    toastr.warning('My name is Inigo Montoya. You Killed my father, prepare to die!');
+    toastr.clear();
 	jsApp.onload();
 });
