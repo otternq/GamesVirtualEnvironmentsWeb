@@ -95,7 +95,8 @@ var jsApp	=
 	
 		callback when everything is loaded
 		
-		---										*/
+		---										
+    */
 	loaded: function ()
 	{
 		// set the "Play/Ingame" Screen Object
