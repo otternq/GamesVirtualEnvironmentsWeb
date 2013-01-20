@@ -15,6 +15,11 @@ var g_resources= [
         src: "data/area01_tileset/area01_level_tiles.png"
     },
     {
+        name: "wheelie_right",
+        type: "image",
+        src: "data/sprite/wheelie_right.png"
+    },
+    {
         name: "area01",
         type: "tmx",
         src: "data/area01.tmx"
@@ -104,12 +109,14 @@ var jsApp	=
 
        // add our player entity in the entity pool
         me.entityPool.add("mainPlayer", PlayerEntity);
+        me.entityPool.add("secondPlayer", EnemyEntity);
                  
        // enable the keyboard
        me.input.bindKey(me.input.KEY.LEFT,  "left");
         me.input.bindKey(me.input.KEY.RIGHT, "right");
         me.input.bindKey(me.input.KEY.UP,    "up");
         me.input.bindKey(me.input.KEY.DOWN,  "down");
+        me.input.bindKey(me.input.KEY.SHIFT, "shift");
           
        // start the game 
        me.state.change(me.state.PLAY);

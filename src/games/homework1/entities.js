@@ -13,6 +13,9 @@ var Character = me.ObjectEntity.extend({
 
         // disable gravity
         this.gravity = 0;
+        
+        //allow for combat
+        this.inCombat = false;
 
         this.firstUpdates = 2;
         this.direction = 'down';
@@ -36,6 +39,42 @@ var Character = me.ObjectEntity.extend({
 
         // check & update player movement
         updated = this.updateMovement();
+        
+        // check for collision with other objects
+        res = me.game.collide(this);
+        
+        // check if we collide with an enemy :
+        if (res && (res.obj.type == me.game.ENEMY_OBJECT))
+        {
+          if (res.x != 0) {
+             // x axis
+             if (res.x<0)
+                console.log("x axis : left side !");
+             else
+                console.log("x axis : right side !");
+          } else {
+             // y axis
+             if (res.y<0)
+                console.log("y axis : top side !");
+             else
+                console.log("y axis : bottom side !");
+          }
+          
+          if (this.inCombat == false && res.obj.type == me.game.ENEMY_OBJECT) {//entering combat
+              this.inCombat = true;
+              toastr.warning("You have entered combat", "Combat", {timeOut: 50});
+          }
+          
+          
+        } else {//not in collision
+        
+            if (this.inCombat == true) { //leave combat
+                toastr.info("You have exited combat", "Combat", {timeOut: 50});
+                this.inCombat = false;
+            }
+            
+        }
+        
 
         if (this.vel.y === 0 && this.vel.x === 0)
         {
@@ -81,7 +120,94 @@ var Character = me.ObjectEntity.extend({
             this.direction = 'down';
         }
     }
-})
+});
+
+/* --------------------------
+an enemy Entity
+------------------------ */
+var EnemyEntity = me.ObjectEntity.extend({
+    init: function(x, y, settings) {
+        // define this here instead of tiled
+        settings.spritewidth = 64;
+ 
+        // call the parent constructor
+        this.parent(x, y, settings);
+        
+        this.gravity = 0;
+        
+        console.log("settings.width="+settings.width);
+        settings.width = 100;
+ 
+        this.startX = x;
+        //this.endX = x + settings.width - settings.spritewidth;
+        this.endX = 90;
+        // size of sprite
+ 
+        // make him start from the right
+        //console.log("settings.width: "+ settings.width);
+        //console.log("settings.spritewidth: " + settings.spritewidth);
+        this.pos.x = x + settings.width - settings.spritewidth;
+        this.walkLeft = true;
+ 
+        // walking & jumping speed
+        this.setVelocity(1, 6);
+ 
+        // make it collidable
+        this.collidable = true;
+        // make it a enemy object
+        this.type = me.game.ENEMY_OBJECT;
+ 
+    },
+ 
+    // call by the engine when colliding with another object
+    // obj parameter corresponds to the other object (typically the player) touching this one
+    onCollision: function(res, obj) {
+ 
+        // res.y >0 means touched by something on the bottom
+        // which mean at top position for this one
+        if (this.alive && (res.y > 0) && obj.falling) {
+            this.flicker(45);
+        }
+    },
+ 
+    // manage the enemy movement
+    update: function() {
+        //return false;
+        // do nothing if not visible
+        if (!this.visible)
+            return false;
+ 
+        if (this.alive) {
+            if (this.walkLeft && this.pos.x <= this.startX) {
+                this.walkLeft = false;
+            } else if (!this.walkLeft && this.pos.x >= this.endX) {
+                this.walkLeft = true;
+            }
+            /*
+            console.log("walkLeft is set to: "+ this.walkLeft);
+            
+            // make it walk
+            this.flipX(this.walkLeft);*/
+            
+            this.vel.x += (this.walkLeft) ? -this.accel.x * me.timer.tick : this.accel.x * me.timer.tick;
+            
+        
+        } else {
+            this.vel.x = 0;
+        }
+         
+        // check and update movement
+        this.updateMovement();
+         
+        // update animation if necessary
+        if (this.vel.x!=0 || this.vel.y!=0) {
+            // update objet animation
+            this.parent(this);
+            return true;
+        }
+        return false;
+    }
+});
 
 
 var PlayerEntity = Character.extend({
@@ -94,6 +220,7 @@ var PlayerEntity = Character.extend({
         me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
 
         //localPlayerCreated(this);
+        
     },
 
     handleInput: function() {
@@ -102,6 +229,7 @@ var PlayerEntity = Character.extend({
             this.vel.x -= this.accel.x * me.timer.tick;
             this.setCurrentAnimation('left');
             this.direction = 'left';
+            
         }
         else if (me.input.isKeyPressed('right'))
         {
@@ -121,6 +249,14 @@ var PlayerEntity = Character.extend({
             this.vel.y = this.accel.y * me.timer.tick;
             this.setCurrentAnimation('down');
             this.direction = 'down';
+        }
+        
+        
+        if (me.input.isKeyPressed('shift'))
+        {
+            if (this.inCombat == true) {
+                console.log("Attacking");
+            }
         }
     }
 

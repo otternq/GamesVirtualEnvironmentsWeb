@@ -26,7 +26,7 @@
   </object>
   <object name="secondPlayer" x="512" y="380" width="32" height="32">
    <properties>
-    <property name="image" value="player_male_base"/>
+    <property name="image" value="wheelie_right"/>
     <property name="spriteheight" value="64"/>
     <property name="spritewidth" value="64"/>
    </properties>
