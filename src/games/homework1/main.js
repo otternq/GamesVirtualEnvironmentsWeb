@@ -61,6 +61,12 @@ var g_resources= [
         name: "gripe_run_right",
         type: "image",
         src: "data/sprite/gripe_run_right.png"
+    },
+    // game font
+    {
+        name: "32x32_font",
+        type: "image",
+        src: "data/sprite/32x32_font.png"
     }
 ];
 
@@ -134,6 +140,12 @@ var PlayScreen = me.ScreenObject.extend(
       
       //load a level
       me.levelDirector.loadLevel("area02");
+      
+      // add a default HUD to the game mngr
+      me.game.addHUD(0, 430, 640, 60);
+ 
+      // add a new HUD item
+      me.game.HUD.addItem("score", new ScoreObject(620, 10));
 	},
 	
 	
@@ -147,6 +159,29 @@ var PlayScreen = me.ScreenObject.extend(
 	
    }
 
+});
+
+/*-------------- 
+a score HUD Item
+--------------------- */
+ 
+var ScoreObject = me.HUD_Item.extend({
+    init: function(x, y) {
+        // call the parent constructor
+        this.parent(x, y);
+        // create a font
+        this.font = new me.BitmapFont("32x32_font", 32);
+    },
+ 
+    /* -----
+ 
+    draw our score
+ 
+    ------ */
+    draw: function(context, x, y) {
+        this.font.draw(context, this.value, this.pos.x + x, this.pos.y + y);
+    }
+ 
 });
 
 

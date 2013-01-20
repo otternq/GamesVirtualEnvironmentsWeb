@@ -16,6 +16,7 @@ var Character = me.ObjectEntity.extend({
         
         //allow for combat
         this.inCombat = false;
+        this.inCombatWith = null;
 
         this.firstUpdates = 2;
         this.direction = 'down';
@@ -46,22 +47,30 @@ var Character = me.ObjectEntity.extend({
         // check if we collide with an enemy :
         if (res && (res.obj.type == me.game.ENEMY_OBJECT))
         {
+            
+            
           if (res.x != 0) {
              // x axis
-             if (res.x<0)
-                console.log("x axis : left side !");
-             else
-                console.log("x axis : right side !");
+             if (res.x<0) {
+                //console.log("x axis : left side !");
+             } else {
+                //console.log("x axis : right side !");
+             }
           } else {
              // y axis
-             if (res.y<0)
-                console.log("y axis : top side !");
-             else
-                console.log("y axis : bottom side !");
+             if (res.y<0) {
+                //console.log("y axis : top side !");
+             } else {
+                //console.log("y axis : bottom side !");
+             }
           }
           
           if (this.inCombat == false && res.obj.type == me.game.ENEMY_OBJECT) {//entering combat
+          
               this.inCombat = true;
+              //console.log("The collision object is:" + res.obj);
+              this.inCombatWith = res.obj;
+                
               toastr.warning("You have entered combat", "Combat", {timeOut: 50});
           }
           
@@ -71,6 +80,7 @@ var Character = me.ObjectEntity.extend({
             if (this.inCombat == true) { //leave combat
                 toastr.info("You have exited combat", "Combat", {timeOut: 50});
                 this.inCombat = false;
+                this.inCombatWith = null;
             }
             
         }
@@ -135,6 +145,8 @@ var EnemyEntity = me.ObjectEntity.extend({
         
         this.gravity = 0;
         
+        this.health = 100;
+        
         console.log("settings.width="+settings.width);
         settings.width = 100;
  
@@ -172,10 +184,17 @@ var EnemyEntity = me.ObjectEntity.extend({
  
     // manage the enemy movement
     update: function() {
-        //return false;
+        
         // do nothing if not visible
-        if (!this.visible)
+        if (this.visible == false || this.alive == false) {
             return false;
+        }
+            
+        if (this.health < 0) {
+            this.alive = false;
+            this.visible = false;
+            toastr.info("Enemy Died");
+        }
  
         if (this.alive) {
             if (this.walkLeft && this.pos.x <= this.startX) {
@@ -221,6 +240,8 @@ var PlayerEntity = Character.extend({
 
         //localPlayerCreated(this);
         
+        this.weapon = new Knife();
+        
     },
 
     handleInput: function() {
@@ -255,6 +276,12 @@ var PlayerEntity = Character.extend({
         if (me.input.isKeyPressed('shift'))
         {
             if (this.inCombat == true) {
+                
+                var attack = this.weapon.attack();
+                me.game.HUD.updateItemValue("score", attack);
+                
+                this.inCombatWith.health -= attack;
+                
                 console.log("Attacking");
             }
         }
