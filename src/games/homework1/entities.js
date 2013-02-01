@@ -154,7 +154,7 @@ var Character = me.ObjectEntity.extend({
 
             this.inCombatWith.health -= attack;
             console.log("Delt " + attack + " damage");
-            toastr.info("Attack Fit! " + attack + " damage", this.name,  {timeOut:2000});
+            toastr.info("Attack Fit! " + attack + " damage. Enemy now at "+ this.inCombatWith.health + " health", this.name,  {timeOut:2000});
         }
         
         console.log("Calling enemy attack");
