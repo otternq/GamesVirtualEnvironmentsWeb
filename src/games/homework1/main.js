@@ -217,7 +217,6 @@ var WeaponSelectedObject = me.HUD_Item.extend({
 //bootstrap :)
 window.onReady(function() 
 {
-    toastr.warning('My name is Inigo Montoya. You Killed my father, prepare to die!');
-    toastr.clear();
+    toastr.warning('Your enemies have Knives');
 	jsApp.onload();
 });
