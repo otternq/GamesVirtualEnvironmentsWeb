@@ -31,15 +31,27 @@ var Character = me.ObjectEntity.extend({
         this.addAnimation("left", [8,9,10,11,12,13]);
         this.addAnimation("up", [15,16,17,18,19,20]);
         this.addAnimation("right", [22,23,24,25,26,27]);
+        
+        this.name = "";
+        this.health = 100;
     },
 
     update: function() {
+    
+        if (this.health < 0) {
+            toastr.info("NOOOO!!!!", this.name);
+			me.game.remove(this);
+            return false;
+        }
+    
         hadSpeed = this.vel.y !== 0 || this.vel.x !== 0;
 
         this.handleInput();
 
         // check & update player movement
         updated = this.updateMovement();
+        
+        me.game.HUD.setItemValue("health", this.health);
         
         // check for collision with other objects
         res = me.game.collide(this);
@@ -129,6 +141,25 @@ var Character = me.ObjectEntity.extend({
             this.setCurrentAnimation('down');
             this.direction = 'down';
         }
+    },
+    
+    attack: function() {
+        var attack = this.weapons[this.weapon].attack();
+        console.log("Dealing " + attack + " damage");
+        
+        if (attack == 0) {
+            console.log("Attach missed");
+            toastr.warning("Attack missed!", this.name,  {timeOut:2000});
+        } else {
+
+            this.inCombatWith.health -= attack;
+            console.log("Delt " + attack + " damage");
+            toastr.info("Attack Fit! " + attack + " damage", this.name,  {timeOut:2000});
+        }
+        
+        console.log("Calling enemy attack");
+        this.inCombatWith.attack();
+        console.log("Out of enemy attack");
     }
 });
 
@@ -168,32 +199,43 @@ var EnemyEntity = me.ObjectEntity.extend({
         this.collidable = true;
         // make it a enemy object
         this.type = me.game.ENEMY_OBJECT;
+        
+        this.name="Bad Guys";
+        
+        this.weapon = 0;
+        
+        this.weapons = [
+            new Fist(),
+            new Knife(),
+            new Sword()
+        ]
  
     },
  
     // call by the engine when colliding with another object
     // obj parameter corresponds to the other object (typically the player) touching this one
     onCollision: function(res, obj) {
- 
-        // res.y >0 means touched by something on the bottom
-        // which mean at top position for this one
-        if (this.alive && (res.y > 0) && obj.falling) {
-            this.flicker(45);
+        
+        
+        if (this.inCombatWith != obj) {
+            this.inCombatWith = obj;
+            console.log(this.name + ": " + obj.name + " is in contact with me. Attack!!");
         }
+        
+        //this.attack();
+        
+        
     },
  
     // manage the enemy movement
     update: function() {
-        
-        // do nothing if not visible
-        if (this.visible == false || this.alive == false) {
-            return false;
-        }
             
         if (this.health < 0) {
-            this.alive = false;
-            this.visible = false;
-            toastr.info("Enemy Died");
+            toastr.info(this.name + " Died");
+            // remove it
+            toastr.info("NOOOO!!!!", this.name);
+			me.game.remove(this);
+            return false;
         }
  
         if (this.alive) {
@@ -217,6 +259,7 @@ var EnemyEntity = me.ObjectEntity.extend({
          
         // check and update movement
         this.updateMovement();
+        
          
         // update animation if necessary
         if (this.vel.x!=0 || this.vel.y!=0) {
@@ -225,6 +268,23 @@ var EnemyEntity = me.ObjectEntity.extend({
             return true;
         }
         return false;
+    },
+    
+    attack: function() {
+    
+        console.log(this.name + ": in attack function");
+    
+        var attack = this.weapons[this.weapon].attack();
+        
+        if (attack == 0) {
+            //toastr.warning("Attack missed!", this.name,  {timeOut:2000});
+            console.log(this.name + " Attack Missed!");
+        } else {
+
+            this.inCombatWith.health -= attack;
+            console.log(this.name + ": Delt " + attack + " damage");
+            toastr.warning("Attack Fit! " + attack + " damage", this.name,  {timeOut:2000});
+        }
     }
 });
 
@@ -240,7 +300,15 @@ var PlayerEntity = Character.extend({
 
         //localPlayerCreated(this);
         
-        this.weapon = new Knife();
+        this.name = "Player 1";
+        
+        this.weapon = 0;
+        
+        this.weapons = [
+            new Fist(),
+            new Knife(),
+            new Sword()
+        ]
         
     },
 
@@ -276,14 +344,21 @@ var PlayerEntity = Character.extend({
         if (me.input.isKeyPressed('shift'))
         {
             if (this.inCombat == true) {
-                
-                var attack = this.weapon.attack();
-                me.game.HUD.updateItemValue("score", attack);
-                
-                this.inCombatWith.health -= attack;
-                
                 console.log("Attacking");
+                
+                this.attack();
             }
+        }
+        
+        if(me.input.isKeyPressed('Z'))
+        {
+            this.weapon += 1;
+            if (this.weapon >= this.weapons.length) {
+                this.weapon = 0;
+            }
+            
+            console.log("Pressing z");
+            me.game.HUD.setItemValue("weapon", this.weapons[this.weapon].name);
         }
     }
 

@@ -17,7 +17,7 @@ var Weapon = Object.extend({
 
 var Fist = Weapon.extend({
     init: function() {
-        this.name = "Fist";
+        this.name = "FIST";
         this.damage = 5;
         this.odds = 0.25;
     }
@@ -25,7 +25,7 @@ var Fist = Weapon.extend({
 
 var Knife = Weapon.extend({
     init: function() {
-        this.name = "Knife";
+        this.name = "KNIFE";
         this.damage = 15;
         this.odds = 0.25;
     }
@@ -33,7 +33,7 @@ var Knife = Weapon.extend({
 
 var Sword = Weapon.extend({
     init: function() {
-        this.name = "Sword";
+        this.name = "SWORD";
         this.damage = 55;
         this.odds = 0.45;
     }

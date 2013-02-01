@@ -122,7 +122,8 @@ var jsApp	=
         me.input.bindKey(me.input.KEY.RIGHT, "right");
         me.input.bindKey(me.input.KEY.UP,    "up");
         me.input.bindKey(me.input.KEY.DOWN,  "down");
-        me.input.bindKey(me.input.KEY.SHIFT, "shift");
+        me.input.bindKey(me.input.KEY.SHIFT, "shift", true);
+        me.input.bindKey(me.input.KEY.Z, "Z", true);
           
        // start the game 
        me.state.change(me.state.PLAY);
@@ -145,7 +146,12 @@ var PlayScreen = me.ScreenObject.extend(
       me.game.addHUD(0, 430, 640, 60);
  
       // add a new HUD item
-      me.game.HUD.addItem("score", new ScoreObject(620, 10));
+      me.game.HUD.addItem("health", new HealthObject(620, 10));
+      me.game.HUD.setItemValue("health", 100);
+      
+      // add a weapon box to the HUD
+      me.game.HUD.addItem("weapon", new WeaponSelectedObject(400, 10));
+      me.game.HUD.setItemValue("weapon", "FIST");
 	},
 	
 	
@@ -162,10 +168,10 @@ var PlayScreen = me.ScreenObject.extend(
 });
 
 /*-------------- 
-a score HUD Item
+a health HUD Item
 --------------------- */
  
-var ScoreObject = me.HUD_Item.extend({
+var HealthObject = me.HUD_Item.extend({
     init: function(x, y) {
         // call the parent constructor
         this.parent(x, y);
@@ -183,6 +189,29 @@ var ScoreObject = me.HUD_Item.extend({
     }
  
 });
+
+/*----------
+a weapon HUD Item
+-------------*/
+var WeaponSelectedObject = me.HUD_Item.extend({
+    init: function(x, y) {
+        // call the parent constructor
+        this.parent(x, y);
+        // create a font
+        this.font = new me.BitmapFont("32x32_font", 32);
+    },
+ 
+    /* -----
+ 
+    draw the weapon
+ 
+    ------ */
+    draw: function(context, x, y) {
+        this.font.draw(context, this.value, this.pos.x + x, this.pos.y + y);
+    }
+ 
+});
+
 
 
 //bootstrap :)
