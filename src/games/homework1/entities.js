@@ -174,7 +174,7 @@ var EnemyEntity = me.ObjectEntity.extend({
         // call the parent constructor
         this.parent(x, y, settings);
         
-        this.gravity = 1;
+        this.gravity = 0;
         
         this.health = 100;
         
@@ -202,7 +202,7 @@ var EnemyEntity = me.ObjectEntity.extend({
         
         this.name="Bad Guys";
         
-        this.weapon = 0;
+        this.weapon = 1;
         
         this.weapons = [
             new Fist(),
